@@ -1,6 +1,12 @@
 import { promisify } from 'util'
 const setTimeoutPromise = promisify(setTimeout)
 
+export function path_ended({ path, time, start_time, speed }) {
+  const current = Math.floor((time - start_time) / speed)
+
+  return current >= path.length
+}
+
 export function path_position({ path, time, start_time, speed }) {
   const t = (time - start_time) / speed
   const current = Math.floor(t)
@@ -33,10 +39,8 @@ export async function* path_to_positions(stream, value = stream.next()) {
 
     yield path_position({ path, time, start_time, speed })
 
-    const current = Math.floor((time - start_time) / speed)
-
     /* End of path, wait for next path */
-    if (current >= path.length) break
+    if (path_ended({ path, time, start_time, speed })) break
 
     const next_time = (Math.floor(time / PATH_UPDATE_MS) + 1) * PATH_UPDATE_MS
 
