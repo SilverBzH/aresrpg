@@ -54,3 +54,26 @@ export async function* path_to_positions(stream, value = stream.next()) {
 
   yield* path_to_positions(stream, next)
 }
+
+export async function* path_to_end(stream, value = stream.next()) {
+  const {
+    value: { path, start_time, speed },
+    done,
+  } = await value
+
+  if (done) return
+
+  const next = stream.next()
+  const time = Date.now()
+
+  const next_time = start_time + path.length * speed
+
+  const path_end = await Promise.race([
+    setTimeoutPromise(next_time - time, true),
+    next.then(() => false),
+  ])
+
+  if (path_end) yield next_time
+
+  yield* path_to_end(stream, next)
+}
