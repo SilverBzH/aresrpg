@@ -25,7 +25,7 @@ export function register_mobs(world) {
       open: [],
       closed: [],
       start_time: 0,
-      speed: 500 /* block/ms */,
+      speed: 500 /* ms/block */,
       health: 20 /* halfheart */,
     }
 
