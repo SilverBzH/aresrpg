@@ -1,10 +1,10 @@
 import run, { SUCCESS } from '../behavior.js'
 
 async function run_child(child, { result, index }, context) {
-  const { status, state, time } = result
+  const { status, state } = result
 
   if (status === SUCCESS) {
-    const child_result = await run(child, { state, time }, context)
+    const child_result = await run(child, state, context)
 
     return { result: child_result, index }
   } else return { result, index }
@@ -18,7 +18,7 @@ function child_reducer(context) {
     })
 }
 
-export function sequence(node, { state, time }, context) {
+export function sequence(node, state, context) {
   const last = state[context.path] ?? 0
 
   const { index, result } = node.childNodes
@@ -27,7 +27,6 @@ export function sequence(node, { state, time }, context) {
       result: {
         status: SUCCESS,
         state,
-        time,
       },
     })
 
@@ -40,12 +39,11 @@ export function sequence(node, { state, time }, context) {
   }
 }
 
-export function reactive_sequence(node, { state, time }, context) {
+export function reactive_sequence(node, state, context) {
   const { result } = node.childNodes.reduce(child_reducer(context), {
     result: {
       status: SUCCESS,
       state,
-      time,
     },
   })
 

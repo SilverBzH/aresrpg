@@ -9,13 +9,9 @@ export const SUCCESS = Symbol('SUCCESS')
 export const RUNNING = Symbol('RUNNING')
 export const FAILURE = Symbol('FAILURE')
 
-export default async function run(node, { state, time }, context) {
-  return await nodes[node.tagName](
-    node,
-    {
-      state,
-      time,
-    },
-    { ...context, path: `${context.path}.${node.tagName}` }
-  )
+export default async function run(node, state, context) {
+  return await nodes[node.tagName](node, state, {
+    ...context,
+    path: `${context.path}.${node.tagName}`,
+  })
 }

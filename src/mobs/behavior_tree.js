@@ -15,18 +15,11 @@ const tree = new DOMParser().parseFromString(
 )
 
 export default function reduce_behavior_tree(state, action, world) {
-  const { state: next_state } = run(
-    tree,
-    {
-      state,
-      time: action.time,
-    },
-    {
-      path: 'tree',
-      action,
-      world,
-    }
-  )
+  const { state: next_state } = run(tree, state, {
+    path: 'tree',
+    action,
+    world,
+  })
 
   return next_state
 }

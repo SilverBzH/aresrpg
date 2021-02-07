@@ -1,4 +1,4 @@
-import { block_center_position } from '../position.js'
+import { block_center_position, position_equal } from '../position.js'
 import { pathfinding } from '../pathfinding.js'
 import { get_block } from '../chunk.js'
 
@@ -67,8 +67,6 @@ export async function is_walkable(world, { x, y, z }) {
   )
 }
 
-export const equal = (a, b) => a.x === b.x && a.y === b.y && a.z === b.z
-
 export async function path_between({ world, from, to }) {
   const start = block_center_position(from)
   const destination = block_center_position(to)
@@ -76,12 +74,12 @@ export async function path_between({ world, from, to }) {
   return await pathfinding({
     start,
     is_target(node) {
-      return equal(node, destination)
+      return position_equal(node, destination)
     },
     neighbors: neighbors(world),
     heuristic(node) {
       return diagonal_distance(node, destination)
     },
-    equal,
+    equal: position_equal,
   })
 }
