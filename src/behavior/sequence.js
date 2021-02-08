@@ -1,4 +1,4 @@
-import run, { SUCCESS } from '../behavior.js'
+import run, { SUCCESS, childs } from '../behavior.js'
 
 async function run_child(child, { result, index }, context) {
   const { status, state } = result
@@ -18,10 +18,10 @@ function child_reducer(context) {
     })
 }
 
-export function sequence(node, state, context) {
+export async function sequence(node, state, context) {
   const last = state[context.path] ?? 0
 
-  const { index, result } = node.childNodes
+  const { index, result } = await childs(node)
     .slice(last)
     .reduce(child_reducer(context), {
       result: {
@@ -39,8 +39,8 @@ export function sequence(node, state, context) {
   }
 }
 
-export function reactive_sequence(node, state, context) {
-  const { result } = node.childNodes.reduce(child_reducer(context), {
+export async function reactive_sequence(node, state, context) {
+  const { result } = await childs(node).reduce(child_reducer(context), {
     result: {
       status: SUCCESS,
       state,

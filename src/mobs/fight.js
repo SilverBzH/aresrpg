@@ -8,13 +8,14 @@ const log = logger(import.meta)
 
 export function reduce_deal_damage(state, { type, payload }) {
   if (type === 'deal_damage') {
-    const { damage } = payload
+    const { damage, damager } = payload
     const health = Math.max(0, state.health - damage)
 
     log.info({ damage, health }, 'Deal Damage')
 
     return {
       ...state,
+      last_damager: damager,
       health,
     }
   }
@@ -29,6 +30,7 @@ export function deal_damage({ client, world }) {
       if (mob) {
         mob.dispatch('deal_damage', {
           damage: 1,
+          damager: client.uuid,
         })
       }
     }

@@ -1,0 +1,4 @@
+<sequence>
+	<get_biggest_damager output="damager"/>
+	<set_target input="damager"/>
+</sequence>

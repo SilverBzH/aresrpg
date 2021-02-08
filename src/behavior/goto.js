@@ -39,13 +39,11 @@ export default async function goto(node, state, { world, action }) {
           closed,
           start_time,
         },
-        time: start_time + state.speed * path.length,
       }
     } else {
       return {
         status: FAILURE,
         state,
-        time,
       }
     }
   }

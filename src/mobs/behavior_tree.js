@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url'
 
 import { DOMParser } from 'xmldom'
 
-import run from '../behavior'
+import run from '../behavior.js'
 
 const tree = new DOMParser().parseFromString(
   fs.readFileSync(
@@ -14,12 +14,15 @@ const tree = new DOMParser().parseFromString(
   'text/xml'
 )
 
-export default function reduce_behavior_tree(state, action, world) {
-  const { state: next_state } = run(tree, state, {
+export default async function reduce_behavior_tree(state, action, world) {
+  console.log('Reduce')
+  const { state: next_state, status } = await run(tree.documentElement, state, {
     path: 'tree',
     action,
     world,
   })
+
+  console.log('Status', status)
 
   return next_state
 }
