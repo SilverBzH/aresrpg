@@ -5,6 +5,7 @@ import { aiter } from 'iterator-helper'
 
 import { reduce_goto } from './mobs/goto.js'
 import { reduce_deal_damage } from './mobs/fight.js'
+import { reduce_target_position } from './mobs/target.js'
 import { last_event_value } from './events.js'
 import { path_end } from './mobs/path.js'
 import reduce_behavior_tree from './mobs/behavior_tree.js'
@@ -14,6 +15,7 @@ function reduce_state(state, action, world) {
     //
     reduce_goto,
     reduce_deal_damage,
+    reduce_target_position,
     reduce_behavior_tree,
   ].reduce(
     async (intermediate, fn) => fn(await intermediate, action, world),
@@ -26,7 +28,7 @@ function observe_mobs(mobs) {
 }
 
 export function register_mobs(world) {
-  const mobs = world.mobs.slice(0, 1).map(({ position, mob, level }, i) => {
+  const mobs = world.mobs.map(({ position, mob, level }, i) => {
     const initial_state = {
       path: [position],
       open: [],
@@ -46,9 +48,7 @@ export function register_mobs(world) {
       return state
     }, initial_state)
 
-    actions.write({ type: 'init', payload: null, time: 0 })
-
-    // setImmediate(() => events.emit('state', initial_state))
+    setImmediate(() => events.emit('state', initial_state))
 
     return {
       entity_id: world.next_entity_id + i,

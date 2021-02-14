@@ -15,14 +15,11 @@ const tree = new DOMParser().parseFromString(
 )
 
 export default async function reduce_behavior_tree(state, action, world) {
-  console.log('Reduce')
-  const { state: next_state, status } = await run(tree.documentElement, state, {
+  const { state: next_state } = await run(tree.documentElement, state, {
     path: 'tree',
     action,
     world,
   })
-
-  console.log('Status', status)
 
   return next_state
 }

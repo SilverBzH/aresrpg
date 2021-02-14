@@ -1,4 +1,4 @@
-import run, { SUCCESS, childs } from '../behavior.js'
+import run, { SUCCESS, childs, RUNNING } from '../behavior.js'
 
 async function run_child(child, { result, index }, context) {
   const { status, state } = result
@@ -6,7 +6,7 @@ async function run_child(child, { result, index }, context) {
   if (status === SUCCESS) {
     const child_result = await run(child, state, context)
 
-    return { result: child_result, index }
+    return { result: child_result, index: context.index }
   } else return { result, index }
 }
 
@@ -15,11 +15,14 @@ function child_reducer(context) {
     await run_child(child, await intermediate, {
       ...context,
       path: `${context.path}.${index}`,
+      index,
     })
 }
 
 export async function sequence(node, state, context) {
   const last = state[context.path] ?? 0
+
+  console.log('last', last)
 
   const { index, result } = await childs(node)
     .slice(last)
@@ -30,11 +33,16 @@ export async function sequence(node, state, context) {
       },
     })
 
+  /* Restart on SUCCESS and FAILURE */
+  const next = result.status !== RUNNING ? 0 : last + index
+
+  console.log('next', next)
+
   return {
     ...result,
     state: {
       ...result.state,
-      [context.path]: index,
+      [context.path]: next,
     },
   }
 }

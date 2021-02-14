@@ -67,14 +67,14 @@ export async function is_walkable(world, { x, y, z }) {
   )
 }
 
-export async function path_between({ world, from, to }) {
+export async function path_between({ world, from, to, distance = 0 }) {
   const start = block_center_position(from)
   const destination = block_center_position(to)
 
   return await pathfinding({
     start,
     is_target(node) {
-      return position_equal(node, destination)
+      return diagonal_distance(node, destination) <= distance
     },
     neighbors: neighbors(world),
     heuristic(node) {
