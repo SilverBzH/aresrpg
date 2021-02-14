@@ -18,7 +18,7 @@ export default async function goto(node, state, { world, action }) {
     })
   )
 
-  const distance = 5
+  const distance = Number(node.getAttribute('distance') ?? 0)
 
   if (diagonal_distance(from, to) <= distance) {
     return { status: SUCCESS, state }
