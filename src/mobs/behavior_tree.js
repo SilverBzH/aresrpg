@@ -6,7 +6,7 @@ import { DOMParser } from 'xmldom'
 
 import run from '../behavior.js'
 
-const tree = new DOMParser().parseFromString(
+export const tree = new DOMParser().parseFromString(
   fs.readFileSync(
     join(dirname(fileURLToPath(import.meta.url)), 'test.xml'),
     'utf8'

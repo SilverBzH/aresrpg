@@ -33,6 +33,7 @@ import { mob_goto } from './mobs/goto.js'
 import { target_position } from './mobs/target.js'
 import { last_event_value } from './events.js'
 import declare_commands from './commands/declare_commands.js'
+import start_debug_server from './debug.js'
 
 const log = logger(import.meta)
 
@@ -166,6 +167,8 @@ aiter(on(server, 'login')).reduce(
   },
   { world: initial_world }
 )
+
+start_debug_server({ world: initial_world })
 
 server.once('listening', () => {
   log.info(server.socketServer.address(), 'Listening')
