@@ -4,22 +4,24 @@ import { XMLSerializer } from 'xmldom'
 
 import logger from './logger.js'
 import { tree } from './mobs/behavior_tree.js'
+import { Types } from './mobs/types.js'
 
 const log = logger(import.meta)
 
 function behavior({ world, app }) {
   const serializer = new XMLSerializer()
 
-  const trees = [
-    {
-      id: 'test',
-      tree: serializer.serializeToString(tree),
-      instances: world.mobs.all.map(({ entity_id: id }) => ({
-        id,
-        tree: 'test',
+  const trees = Object.entries(Types).map(([id, { displayName }]) => ({
+    id,
+    name: displayName,
+    tree: serializer.serializeToString(tree),
+    instances: world.mobs.all
+      .filter(({ mob }) => mob === id)
+      .map(({ entity_id }) => ({
+        id: entity_id,
       })),
-    },
-  ]
+  }))
+
   app.get('/behavior', () => trees)
 }
 
