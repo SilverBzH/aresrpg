@@ -1,13 +1,20 @@
+import { PassThrough, Readable } from 'stream'
+
 import fastify from 'fastify'
 import fastifyCors from 'fastify-cors'
 import { XMLSerializer } from 'xmldom'
+import { aiter } from 'iterator-helper'
 
 import logger from './logger.js'
 import { tree } from './mobs/behavior_tree.js'
 import { Types } from './mobs/types.js'
+import { SUCCESS, FAILURE, RUNNING } from './behavior.js'
 
 const log = logger(import.meta)
 
+/**
+ * @param {{ app: import('fastify').FastifyInstance }}
+ */
 function behavior({ world, app }) {
   const serializer = new XMLSerializer()
 
@@ -23,6 +30,52 @@ function behavior({ world, app }) {
   }))
 
   app.get('/behavior', () => trees)
+
+  const instances = world.mobs.all.map(({ entity_id }) => ({
+    entity_id,
+    current: { hello: 'world' },
+    stream: new PassThrough({ objectMode: true }),
+  }))
+
+  app.get('/behavior/:id', (req, res) => {
+    res.raw.setHeader('Content-Type', 'text/event-stream')
+    res.raw.setHeader('Connection', 'keep-alive')
+
+    function format(data) {
+      return `data: ${JSON.stringify(data)}\n\n`
+    }
+
+    const instance = instances.find(
+      ({ entity_id }) => entity_id === Number(req.params.id)
+    )
+
+    for (const data of Object.entries(instance.current)) {
+      res.raw.write(format(data))
+    }
+
+    Readable.from(
+      aiter(instance.stream[Symbol.asyncIterator]()).map(format)
+    ).pipe(res.raw)
+  })
+
+  const statuses = {
+    [SUCCESS]: 'SUCCESS',
+    [FAILURE]: 'FAILURE',
+    [RUNNING]: 'RUNNING',
+  }
+
+  return ({ context: { path, entity_id }, result }) => {
+    const status = statuses[result.status]
+
+    const instance = instances.find(({ entity_id: id }) => id === entity_id)
+
+    instance.current = {
+      ...instance.current,
+      [path]: status,
+    }
+
+    instance.stream.write([path, status])
+  }
 }
 
 export default function start_debug_server({ world }) {
@@ -32,11 +85,13 @@ export default function start_debug_server({ world }) {
     origin: true,
   })
 
-  behavior({ world, app })
-
   app.listen(4242).then((address) => {
     log.info(
       `Arborist https://aresrpg-arborist.netlify.app/${address}/behavior`
     )
   })
+
+  return {
+    behavior: behavior({ world, app }),
+  }
 }

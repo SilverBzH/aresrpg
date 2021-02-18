@@ -7,6 +7,8 @@ import set_target from './behavior/set_target.js'
 import target_position from './behavior/target_position.js'
 import goto from './behavior/goto.js'
 
+import { debug } from './index.js'
+
 const log = logger(import.meta)
 
 const nodes = {
@@ -24,11 +26,13 @@ export const FAILURE = Symbol('FAILURE')
 
 export default async function run(node, state, context) {
   const path = `${context.path}.${node.tagName}`
-  const result = await nodes[node.tagName](node, state, {
+  const node_context = {
     ...context,
     path,
-  })
+  }
+  const result = await nodes[node.tagName](node, state, node_context)
   log.info({ path, status: result.status.toString() }, 'Runned')
+  debug.behavior({ context: node_context, result })
   return result
 }
 

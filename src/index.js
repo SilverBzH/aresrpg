@@ -168,7 +168,7 @@ aiter(on(server, 'login')).reduce(
   { world: initial_world }
 )
 
-start_debug_server({ world: initial_world })
+export const debug = start_debug_server({ world: initial_world })
 
 server.once('listening', () => {
   log.info(server.socketServer.address(), 'Listening')
