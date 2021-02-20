@@ -9,6 +9,8 @@ import goto from './behavior/goto.js'
 
 import { debug } from './index.js'
 
+const DEBUG = false
+
 const log = logger(import.meta)
 
 const nodes = {
@@ -31,7 +33,7 @@ export default async function run(node, state, context) {
     path,
   }
   const result = await nodes[node.tagName](node, state, node_context)
-  log.info({ path, status: result.status.toString() }, 'Runned')
+  if (DEBUG) log.debug({ path, status: result.status.toString() }, 'Runned')
   debug.behavior({ context: node_context, result })
   return result
 }

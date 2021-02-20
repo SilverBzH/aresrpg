@@ -14,11 +14,11 @@ export const tree = new DOMParser().parseFromString(
   'text/xml'
 )
 
-export default async function reduce_behavior_tree(state, action, world) {
+export default async function reduce_behavior_tree(state, action, context) {
   const { state: next_state } = await run(tree.documentElement, state, {
     path: 'tree',
     action,
-    world,
+    ...context,
   })
 
   return next_state

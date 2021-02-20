@@ -6,7 +6,7 @@ import { path_between } from './navigation.js'
 
 const log = logger(import.meta)
 
-export async function reduce_goto(state, { type, payload, time }, world) {
+export async function reduce_goto(state, { type, payload, time }, { world }) {
   if (type === 'goto') {
     const { position } = payload
 

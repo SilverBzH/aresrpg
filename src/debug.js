@@ -33,29 +33,33 @@ function behavior({ world, app }) {
 
   const instances = world.mobs.all.map(({ entity_id }) => ({
     entity_id,
-    current: { hello: 'world' },
+    current: {},
     stream: new PassThrough({ objectMode: true }),
   }))
 
-  app.get('/behavior/:id', (req, res) => {
-    res.raw.setHeader('Content-Type', 'text/event-stream')
-    res.raw.setHeader('Connection', 'keep-alive')
+  app.get('/behavior/:id', (request, reply) => {
+    reply.type('text/event-stream')
+    reply.header('Connection', 'keep-alive')
 
     function format(data) {
       return `data: ${JSON.stringify(data)}\n\n`
     }
 
     const instance = instances.find(
-      ({ entity_id }) => entity_id === Number(req.params.id)
+      ({ entity_id }) => entity_id === Number(request.params.id)
     )
 
+    const stream = new PassThrough()
+
     for (const data of Object.entries(instance.current)) {
-      res.raw.write(format(data))
+      stream.write(format(data))
     }
 
     Readable.from(
       aiter(instance.stream[Symbol.asyncIterator]()).map(format)
-    ).pipe(res.raw)
+    ).pipe(stream)
+
+    reply.send(stream)
   })
 
   const statuses = {
